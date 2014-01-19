@@ -1,5 +1,6 @@
 package tel.panfilov.documentum.utils.session.apply;
 
+import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfId;
@@ -33,6 +34,8 @@ public final class ApplyCommand {
             return new ExecSQL(session);
         case IApplyCommand.INBOX_ITEM_APPEND:
             return new InboxItemAppend(session, objectId);
+        case IApplyCommand.EXEC_SELECT_SQL:
+            return new ExecSelectSQL(session);
         default:
             throw new IllegalArgumentException("Unknown command: " + command);
         }
@@ -52,6 +55,12 @@ public final class ApplyCommand {
         throws DfException {
         return ((IExecSQL) getCommand(IApplyCommand.EXEC_SQL, session)).setSQL(
                 sql).execute();
+    }
+
+    public static IDfCollection execSelectSQL(IDfSession session, String sql)
+        throws DfException {
+        return ((IExecSelectSQL) getCommand(IApplyCommand.EXEC_SELECT_SQL,
+                session)).setSQL(sql).execute();
     }
 
     public static IDfId inboxItemAppend(IDfSession sesssion, String objectId,

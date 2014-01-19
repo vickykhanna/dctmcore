@@ -15,6 +15,8 @@ public interface IApplyCommand<T> {
 
     int INBOX_ITEM_APPEND = 4;
 
+    int EXEC_SELECT_SQL = 5;
+
     T execute() throws DfException;
 
 }
