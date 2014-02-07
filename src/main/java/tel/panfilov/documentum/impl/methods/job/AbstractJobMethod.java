@@ -368,7 +368,7 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
         _jobTracer = jobTracer;
     }
 
-    private boolean isSingleExecution() {
+    protected boolean isSingleExecution() {
         return _singleExecution;
     }
 
@@ -376,7 +376,7 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
         _singleExecution = singleExecution;
     }
 
-    private boolean isUseTransaction() {
+    protected boolean isUseTransaction() {
         return _useTransaction;
     }
 
