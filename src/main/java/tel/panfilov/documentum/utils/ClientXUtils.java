@@ -6,6 +6,7 @@ import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
+import com.documentum.fc.client.IDfSessionManagerEventListener;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
 import com.documentum.fc.common.IDfList;
@@ -42,6 +43,11 @@ public final class ClientXUtils {
 
     public static IDfSessionManager newSessionManager(IDfSession session)
         throws DfException {
+        return newSessionManager(session, null);
+    }
+
+    public static IDfSessionManager newSessionManager(IDfSession session,
+            IDfSessionManagerEventListener listener) throws DfException {
         IDfLoginInfo loginInfo = session.getLoginInfo();
         int timeout = session.getServerConfig().getInt(
                 "max_login_ticket_timeout");
@@ -49,19 +55,37 @@ public final class ClientXUtils {
                 "docbase", timeout, false, session.getDocbaseName()));
         IDfSessionManager sessionManager = getSessionManager();
         sessionManager.setIdentity(session.getDocbaseName(), loginInfo);
+        if (listener != null) {
+            sessionManager.setListener(listener);
+        }
         return sessionManager;
     }
 
     public static IDfSessionManager getSessionManager(String docbase,
             String userName, String password) throws DfException {
-        return getSessionManager(docbase, userName, password, null);
+        return getSessionManager(docbase, userName, password, null, null);
+    }
+
+    public static IDfSessionManager getSessionManager(String docbase,
+            String userName, String password,
+            IDfSessionManagerEventListener listener) throws DfException {
+        return getSessionManager(docbase, userName, password, null, listener);
     }
 
     public static IDfSessionManager getSessionManager(String docbase,
             String userName, String password, String domain) throws DfException {
+        return getSessionManager(docbase, userName, password, domain, null);
+    }
+
+    public static IDfSessionManager getSessionManager(String docbase,
+            String userName, String password, String domain,
+            IDfSessionManagerEventListener listener) throws DfException {
         IDfSessionManager sessionManager = getSessionManager();
         sessionManager.setIdentity(docbase,
                 getLoginInfo(userName, password, domain));
+        if (listener != null) {
+            sessionManager.setListener(listener);
+        }
         return sessionManager;
     }
 

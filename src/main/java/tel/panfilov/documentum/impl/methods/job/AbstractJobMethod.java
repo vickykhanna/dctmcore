@@ -11,6 +11,7 @@ import java.util.Map;
 import com.documentum.fc.client.IDfModule;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
+import com.documentum.fc.client.IDfSessionManagerEventListener;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLogger;
@@ -38,10 +39,16 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
     public static final String JOBARG_SINGLE_EXECUTION = "single_execution";
     public static final String JOBARG_USE_TRANSACTION = "use_transaction";
 
+    public static final String JOBARG_API_TRACE_LEVEL = "api_trace_level";
+    public static final String JOBARG_SQL_TRACE_LEVEL = "sql_trace_level";
+
     public static final int DEFAULT_VALUE_METHOD_TRACE_LEVEL = 4;
 
     public static final boolean DEFAULT_VALUE_SINGLE_EXECUTION = false;
     public static final boolean DEFAULT_VALUE_USE_TRANSACTION = false;
+
+    public static final int DEFAULT_VALUE_API_TRACE_LEVEL = 0;
+    public static final int DEFAULT_VALUE_SQL_TRACE_LEVEL = 0;
 
     public static final String DEFAULT_VALUE_DOMAIN = null;
     public static final String DEFAULT_VALUE_PASSWORD = "";
@@ -58,6 +65,10 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
     private boolean _singleExecution;
 
     private boolean _useTransaction;
+
+    private int _apiTraceLevel;
+
+    private int _sqlTraceLevel;
 
     private JobTracer _jobTracer;
 
@@ -166,7 +177,8 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
 
         try {
             IDfSessionManager sessionManager = ClientXUtils.getSessionManager(
-                    docbaseName, userName, password, domain);
+                    docbaseName, userName, password, domain,
+                    new JobSessionEventListener());
             return sessionManager.newSession(docbaseName);
         } catch (DfException df) {
             throw new DfException("Session Creation Failed", df);
@@ -180,8 +192,8 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
     protected abstract void doPrepare(IDfSession session) throws DfException;
 
     private int executeInTransaction(IDfSession session) throws DfException {
-        IDfSessionManager txSessionManager = ClientXUtils
-                .newSessionManager(session);
+        IDfSessionManager txSessionManager = ClientXUtils.newSessionManager(
+                session, new JobSessionEventListener());
         IDfSession txSession = null;
         try {
             txSessionManager.beginTransaction();
@@ -254,6 +266,20 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
             return DEFAULT_VALUE_USE_TRANSACTION;
         }
         return extractArgBoolValue(JOBARG_USE_TRANSACTION);
+    }
+
+    private int extractApiTraceLevel() throws DfException {
+        if (!getMethodArgsManager().isArgumentProvided(JOBARG_API_TRACE_LEVEL)) {
+            return DEFAULT_VALUE_API_TRACE_LEVEL;
+        }
+        return extractArgIntValue(JOBARG_API_TRACE_LEVEL);
+    }
+
+    private int extractSqlTraceLevel() throws DfException {
+        if (!getMethodArgsManager().isArgumentProvided(JOBARG_SQL_TRACE_LEVEL)) {
+            return DEFAULT_VALUE_SQL_TRACE_LEVEL;
+        }
+        return extractArgIntValue(JOBARG_SQL_TRACE_LEVEL);
     }
 
     private String extractJobId() throws DfException {
@@ -384,6 +410,22 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
         _useTransaction = useTransaction;
     }
 
+    private int getApiTraceLevel() {
+        return _apiTraceLevel;
+    }
+
+    private void setApiTraceLevel(int apiTraceLevel) {
+        _apiTraceLevel = apiTraceLevel;
+    }
+
+    private int getSqlTraceLevel() {
+        return _sqlTraceLevel;
+    }
+
+    private void setSqlTraceLevel(int sqlTraceLevel) {
+        _sqlTraceLevel = sqlTraceLevel;
+    }
+
     private void closeTracer(boolean flag) {
         try {
             getJobTracer().close(flag);
@@ -444,5 +486,33 @@ public abstract class AbstractJobMethod implements IDfMethod, IDfModule,
         return getJobTracer().isWarn();
     }
 
-}
+    private class JobSessionEventListener implements
+            IDfSessionManagerEventListener {
 
+        private JobSessionEventListener() {
+            super();
+        }
+
+        @Override
+        public void onSessionCreate(IDfSession session) throws DfException {
+            if (_apiTraceLevel > 0) {
+                session.setServerTraceLevel(_apiTraceLevel, "DM_API");
+            }
+            if (_sqlTraceLevel > 0) {
+                session.setServerTraceLevel(_sqlTraceLevel, "SQL_TRACE");
+            }
+        }
+
+        @Override
+        public void onSessionDestroy(IDfSession session) throws DfException {
+            if (_apiTraceLevel > 0) {
+                session.setServerTraceLevel(0, "DM_API");
+            }
+            if (_sqlTraceLevel > 0) {
+                session.setServerTraceLevel(0, "SQL_TRACE");
+            }
+        }
+
+    }
+
+}
