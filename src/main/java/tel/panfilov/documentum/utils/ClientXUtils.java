@@ -51,8 +51,8 @@ public final class ClientXUtils {
         IDfLoginInfo loginInfo = session.getLoginInfo();
         int timeout = session.getServerConfig().getInt(
                 "max_login_ticket_timeout");
-        loginInfo.setPassword(session.getLoginTicketEx(loginInfo.getUser(),
-                "docbase", timeout, false, session.getDocbaseName()));
+        loginInfo.setPassword(session.getLoginTicketEx(null, "docbase",
+                timeout, false, session.getDocbaseName()));
         IDfSessionManager sessionManager = getSessionManager();
         sessionManager.setIdentity(session.getDocbaseName(), loginInfo);
         if (listener != null) {
