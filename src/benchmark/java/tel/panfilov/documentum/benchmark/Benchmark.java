@@ -111,6 +111,7 @@ public class Benchmark implements Runnable {
 				_semaphore.release();
 			}
 		} catch (Throwable t) {
+			t.printStackTrace(System.err);
 			_parent.interrupt();
 		} finally {
 			_benchmark.doRelease();
