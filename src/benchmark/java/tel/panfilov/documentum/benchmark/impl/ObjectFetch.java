@@ -15,6 +15,7 @@ import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.common.DfDocbaseConstants;
 import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.DfId;
 
 /**
  * @author Andrey B. Panfilov <andrew@panfilov.tel>
@@ -53,6 +54,17 @@ public class ObjectFetch extends ObjectCreation {
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		} catch (DfException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	@Override
+	public void doOp() {
+		try {
+			_session.getObject(DfId.valueOf(_objects.readLine()));
+		} catch (DfException ex) {
+			throw new RuntimeException(ex);
+		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
