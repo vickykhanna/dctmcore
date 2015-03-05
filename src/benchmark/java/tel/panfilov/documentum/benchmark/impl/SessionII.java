@@ -8,22 +8,22 @@ import com.documentum.fc.common.DfException;
  */
 public class SessionII extends Session {
 
-	public SessionII(String docbase, String userName, String password) {
-		super(docbase, userName, password);
-	}
+    public SessionII(String docbase, String userName, String password) {
+        super(docbase, userName, password);
+    }
 
-	@Override
-	public void doOp() {
-		IDfSession session = null;
-		try {
-			session = _sessionManager.newSession(_docbase);
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		} finally {
-			if (session != null) {
-				_sessionManager.release(session);
-			}
-		}
-	}
+    @Override
+    public void doOp() {
+        IDfSession session = null;
+        try {
+            session = _sessionManager.newSession(_docbase);
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            if (session != null) {
+                _sessionManager.release(session);
+            }
+        }
+    }
 
 }

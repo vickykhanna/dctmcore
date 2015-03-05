@@ -12,40 +12,41 @@ import com.documentum.fc.common.IDfLoginInfo;
  */
 public class Connection extends AbstractDFC {
 
-	protected DocbaseConnectionFactory _connectionFactory;
-	protected IDocbaseSpec _docbaseSpec;
-	protected IDfLoginInfo _loginInfo;
-	protected ClientInfo _clientInfo;
+    protected DocbaseConnectionFactory _connectionFactory;
+    protected IDocbaseSpec _docbaseSpec;
+    protected IDfLoginInfo _loginInfo;
+    protected ClientInfo _clientInfo;
 
-	public Connection(String docbase, String userName, String password) {
-		super(docbase, userName, password);
-	}
+    public Connection(String docbase, String userName, String password) {
+        super(docbase, userName, password);
+    }
 
-	@Override
-	public void doSetup() {
-		_connectionFactory = new DocbaseConnectionFactory();
-		_docbaseSpec = makeDocbaseSpec();
-		_loginInfo = makeDfLoginInfo();
-		_clientInfo = makeClientInfo();
-	}
+    @Override
+    public void doSetup() {
+        _connectionFactory = new DocbaseConnectionFactory();
+        _docbaseSpec = makeDocbaseSpec();
+        _loginInfo = makeDfLoginInfo();
+        _clientInfo = makeClientInfo();
+    }
 
-	@Override
-	public void doOp() {
-		IDocbaseConnection connection = null;
-		try {
-			connection = _connectionFactory.newDocbaseConnection(_docbaseSpec, _loginInfo, _clientInfo);
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		} finally {
-			if (connection != null) {
-				connection.close();
-			}
-		}
-	}
+    @Override
+    public void doOp() {
+        IDocbaseConnection connection = null;
+        try {
+            connection = _connectionFactory.newDocbaseConnection(_docbaseSpec,
+                    _loginInfo, _clientInfo);
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
 
-	@Override
-	public void doRelease() {
+    @Override
+    public void doRelease() {
 
-	}
+    }
 
 }

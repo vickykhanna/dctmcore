@@ -9,24 +9,24 @@ import com.documentum.fc.common.DfException;
  */
 public class SessionIV extends SessionII {
 
-	public SessionIV(String docbase, String userName, String password) {
-		super(docbase, userName, password);
-	}
+    public SessionIV(String docbase, String userName, String password) {
+        super(docbase, userName, password);
+    }
 
-	@Override
-	public void doOp() {
-		IDfSession session = null;
-		IDfSessionManager sessionManager = null;
-		try {
-			sessionManager = makeSessionManager();
-			session = sessionManager.getSession(_docbase);
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		} finally {
-			if (session != null) {
-				sessionManager.release(session);
-			}
-		}
-	}
+    @Override
+    public void doOp() {
+        IDfSession session = null;
+        IDfSessionManager sessionManager = null;
+        try {
+            sessionManager = makeSessionManager();
+            session = sessionManager.getSession(_docbase);
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            if (session != null) {
+                sessionManager.release(session);
+            }
+        }
+    }
 
 }

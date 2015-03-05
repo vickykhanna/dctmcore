@@ -1,9 +1,5 @@
 package tel.panfilov.documentum.impl.methods.job;
 
-/**
- * @author: Andrey B. Panfilov <andrew@panfilov.tel>
- */
-
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Map;

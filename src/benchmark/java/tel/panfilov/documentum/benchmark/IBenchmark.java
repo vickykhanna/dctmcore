@@ -5,10 +5,10 @@ package tel.panfilov.documentum.benchmark;
  */
 public interface IBenchmark {
 
-	void doSetup();
+    void doSetup();
 
-	void doOp();
+    void doOp();
 
-	void doRelease();
+    void doRelease();
 
 }

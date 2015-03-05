@@ -5,14 +5,14 @@ package tel.panfilov.documentum.benchmark.impl;
  */
 public class SessionIII extends SessionII {
 
-	public SessionIII(String docbase, String userName, String password) {
-		super(docbase, userName, password);
-	}
+    public SessionIII(String docbase, String userName, String password) {
+        super(docbase, userName, password);
+    }
 
-	@Override
-	public void doOp() {
-		super.doOp();
-		_sessionManager.flushSessions();
-	}
+    @Override
+    public void doOp() {
+        super.doOp();
+        _sessionManager.flushSessions();
+    }
 
 }

@@ -9,38 +9,38 @@ import com.documentum.fc.common.DfException;
  */
 public class Session extends AbstractDFC {
 
-	protected IDfSessionManager _sessionManager;
+    protected IDfSessionManager _sessionManager;
 
-	public Session(String docbase, String userName, String password) {
-		super(docbase, userName, password);
-	}
+    public Session(String docbase, String userName, String password) {
+        super(docbase, userName, password);
+    }
 
-	@Override
-	public void doSetup() {
-		try {
-			_sessionManager = makeSessionManager();
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    @Override
+    public void doSetup() {
+        try {
+            _sessionManager = makeSessionManager();
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	@Override
-	public void doOp() {
-		IDfSession session = null;
-		try {
-			session = _sessionManager.getSession(_docbase);
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		} finally {
-			if (session != null) {
-				_sessionManager.release(session);
-			}
-		}
-	}
+    @Override
+    public void doOp() {
+        IDfSession session = null;
+        try {
+            session = _sessionManager.getSession(_docbase);
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            if (session != null) {
+                _sessionManager.release(session);
+            }
+        }
+    }
 
-	@Override
-	public void doRelease() {
-		_sessionManager.clearIdentities();
-	}
+    @Override
+    public void doRelease() {
+        _sessionManager.clearIdentities();
+    }
 
 }

@@ -10,38 +10,39 @@ import com.documentum.fc.common.DfException;
  */
 public class ObjectCreation extends AbstractDFC {
 
-	protected IDfSession _session;
+    protected IDfSession _session;
 
-	public ObjectCreation(String docbase, String userName, String password) {
-		super(docbase, userName, password);
-	}
+    public ObjectCreation(String docbase, String userName, String password) {
+        super(docbase, userName, password);
+    }
 
-	@Override
-	public void doSetup() {
-		try {
-			IDfSessionManager sessionManager = makeSessionManager();
-			_session = sessionManager.newSession(_docbase);
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    @Override
+    public void doSetup() {
+        try {
+            IDfSessionManager sessionManager = makeSessionManager();
+            _session = sessionManager.newSession(_docbase);
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	@Override
-	public void doOp() {
-		try {
-			IDfDocument document = (IDfDocument) _session.newObject("dm_document");
-			document.link("/Temp");
-			document.save();
-		} catch (DfException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    @Override
+    public void doOp() {
+        try {
+            IDfDocument document = (IDfDocument) _session
+                    .newObject("dm_document");
+            document.link("/Temp");
+            document.save();
+        } catch (DfException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	@Override
-	public void doRelease() {
-		if (_session != null) {
-			_session.getSessionManager().release(_session);
-		}
-	}
+    @Override
+    public void doRelease() {
+        if (_session != null) {
+            _session.getSessionManager().release(_session);
+        }
+    }
 
 }

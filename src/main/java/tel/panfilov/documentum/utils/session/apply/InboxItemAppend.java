@@ -65,7 +65,7 @@ class InboxItemAppend extends AbstractApplyCommandWithObject<IDfId> implements
     public IDfId execute() throws DfException {
         IDfTypedObject object = applyForOjbect();
         if (object != null) {
-            object.getId("result");
+            return object.getId("result");
         }
         return DfId.DF_NULLID;
     }
