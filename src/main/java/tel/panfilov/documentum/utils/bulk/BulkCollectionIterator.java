@@ -16,7 +16,7 @@ import tel.panfilov.documentum.utils.wrappers.SubIterator;
 public class BulkCollectionIterator extends
         AbstractBulkIterator<Iterator<String>> {
 
-    public static final int MAX_OBJECTS_IN_QUERY = 1000;
+    public static final int MAX_OBJECTS_IN_QUERY = 2000;
 
     public static final int MAX_OBJECTS_IN_CLAUSE = 250;
 
@@ -69,6 +69,10 @@ public class BulkCollectionIterator extends
         query.append(" WHERE ");
         query.append(QueryHelper.createInClause(DfDocbaseConstants.R_OBJECT_ID,
                 ids, MAX_OBJECTS_IN_CLAUSE));
+        query.append(" ORDER BY ").append(DfDocbaseConstants.R_OBJECT_ID);
+        if (projection.contains("i_position")) {
+            query.append(", i_position DESC");
+        }
         return query.toString();
     }
 

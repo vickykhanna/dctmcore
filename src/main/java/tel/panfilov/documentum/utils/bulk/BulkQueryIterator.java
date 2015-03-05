@@ -30,6 +30,10 @@ public class BulkQueryIterator extends AbstractBulkIterator<String> {
         query.append(" WHERE r_object_id IN (");
         query.append(param);
         query.append(")");
+        query.append(" ORDER BY ").append(DfDocbaseConstants.R_OBJECT_ID);
+        if (projection.contains("i_position")) {
+            query.append(", i_position DESC");
+        }
         return Arrays.asList(query.toString()).iterator();
     }
 

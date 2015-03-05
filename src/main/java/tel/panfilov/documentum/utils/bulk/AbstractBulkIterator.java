@@ -85,7 +85,9 @@ public abstract class AbstractBulkIterator<T> implements
             PersistentObjectManager objectManager = ((ISession) _session)
                     .getObjectManager();
             return objectManager
-                    .getObjectFromQueryRow(new IDfFakeCollection<IDfTypedObject>(current), _objectType);
+                    .getObjectFromQueryRow(
+                            new IDfFakeCollection<IDfTypedObject>(current),
+                            _objectType);
         } catch (DfException ex) {
             throw new RuntimeException(ex);
         }
@@ -134,13 +136,20 @@ public abstract class AbstractBulkIterator<T> implements
             if (type == null) {
                 attributes = Collections.emptySet();
             } else {
+                boolean hasRepeatings = false;
                 attributes = new LinkedHashSet<String>();
                 for (int i = 0, n = type.getTypeAttrCount(); i < n; i++) {
                     IDfAttr attr = type.getTypeAttr(i);
                     attributes.add(attr.getName());
+                    if (attr.isRepeating()) {
+                        hasRepeatings = true;
+                    }
                 }
                 attributes.add(DfDocbaseConstants.R_OBJECT_ID);
                 attributes.add(DfDocbaseConstants.I_VSTAMP);
+                if (hasRepeatings) {
+                    attributes.add("i_position");
+                }
             }
             _projection = ReservedWords.getProjection(attributes);
             return _projection;

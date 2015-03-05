@@ -24,6 +24,10 @@ import tel.panfilov.documentum.utils.CoreUtils;
  */
 public class ObjectFetch extends ObjectCreation {
 
+    public static final int MAX_OBJECTS_IN_QUERY = 2000;
+
+    public static final int MAX_OBJECTS_IN_CLAUSE = 250;
+
     protected BufferedReader _objects;
 
     public ObjectFetch(String docbase, String userName, String password) {

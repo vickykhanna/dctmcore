@@ -51,7 +51,9 @@ public class BufferedReaderIterator implements Iterator<String>, Closeable {
         if (!hasNext()) {
             throw new IllegalStateException("Empty iterator");
         }
-        return _next;
+        String current = _next;
+        _next = null;
+        return current;
     }
 
     @Override
