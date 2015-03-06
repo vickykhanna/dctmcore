@@ -1,6 +1,7 @@
 package tel.panfilov.documentum.benchmark.impl;
 
 import com.documentum.fc.client.IDfPersistentObject;
+import com.documentum.fc.common.DfException;
 
 import tel.panfilov.documentum.utils.CoreUtils;
 import tel.panfilov.documentum.utils.bulk.BulkCollectionIterator;
@@ -9,11 +10,11 @@ import tel.panfilov.documentum.utils.wrappers.BufferedReaderIterator;
 /**
  * @author Andrey B. Panfilov <andrew@panfilov.tel>
  */
-public class ObjectBulkFetchIII extends ObjectFetch {
+public class ObjectBulkFetchIV extends ObjectFetch {
 
     protected BulkCollectionIterator _iterator;
 
-    public ObjectBulkFetchIII(String docbase, String userName, String password) {
+    public ObjectBulkFetchIV(String docbase, String userName, String password) {
         super(docbase, userName, password);
     }
 
@@ -25,6 +26,11 @@ public class ObjectBulkFetchIII extends ObjectFetch {
         }
         if (_iterator.hasNext()) {
             IDfPersistentObject object = _iterator.next();
+            try {
+                _session.flushObject(object.getObjectId());
+            } catch (DfException ex) {
+                throw new RuntimeException(ex);
+            }
             return;
         }
         throw new RuntimeException("no objects");

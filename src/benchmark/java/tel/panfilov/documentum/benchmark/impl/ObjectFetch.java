@@ -24,7 +24,7 @@ import tel.panfilov.documentum.utils.CoreUtils;
  */
 public class ObjectFetch extends ObjectCreation {
 
-    public static final int MAX_OBJECTS_IN_QUERY = 2000;
+    public static final int MAX_OBJECTS_IN_QUERY = 100;
 
     public static final int MAX_OBJECTS_IN_CLAUSE = 250;
 

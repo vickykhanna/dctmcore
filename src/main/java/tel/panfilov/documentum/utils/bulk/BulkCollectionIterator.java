@@ -1,5 +1,7 @@
 package tel.panfilov.documentum.utils.bulk;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfDocbaseConstants;
 
+import tel.panfilov.documentum.utils.CoreUtils;
 import tel.panfilov.documentum.utils.query.QueryHelper;
 import tel.panfilov.documentum.utils.wrappers.SubIterator;
 
@@ -16,7 +19,7 @@ import tel.panfilov.documentum.utils.wrappers.SubIterator;
 public class BulkCollectionIterator extends
         AbstractBulkIterator<Iterator<String>> {
 
-    public static final int MAX_OBJECTS_IN_QUERY = 2000;
+    public static final int MAX_OBJECTS_IN_QUERY = 100;
 
     public static final int MAX_OBJECTS_IN_CLAUSE = 250;
 
@@ -32,28 +35,7 @@ public class BulkCollectionIterator extends
 
     @Override
     protected Iterator<String> getQueries(final Iterator<String> objectIds) {
-        return new Iterator<String>() {
-
-            Iterator<List<String>> _iterator = new SubIterator<String>(
-                    objectIds, MAX_OBJECTS_IN_QUERY);
-
-            @Override
-            public boolean hasNext() {
-                return _iterator.hasNext();
-            }
-
-            @Override
-            public String next() {
-                return buildQuery(_iterator.next());
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException(
-                        "This operation is not supported");
-            }
-
-        };
+        return new QueryIterator(objectIds);
     }
 
     protected String buildQuery(List<String> ids) {
@@ -74,6 +56,45 @@ public class BulkCollectionIterator extends
             query.append(", i_position DESC");
         }
         return query.toString();
+    }
+
+    private class QueryIterator implements Iterator<String>, Closeable {
+
+        SubIterator<String> _iterator;
+
+        public QueryIterator(Iterator<String> objectIds) {
+            _iterator = new SubIterator<String>(objectIds, MAX_OBJECTS_IN_QUERY);
+        }
+
+        @Override
+        public void close() throws IOException {
+            CoreUtils.closeSilently(_iterator);
+            _iterator = null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (_iterator != null && _iterator.hasNext()) {
+                return true;
+            }
+            CoreUtils.closeSilently(this);
+            return false;
+        }
+
+        @Override
+        public String next() {
+            if (hasNext()) {
+                return buildQuery(_iterator.next());
+            }
+            throw new IllegalStateException("Empty iterator");
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException(
+                    "This operation is not supported");
+        }
+
     }
 
 }
