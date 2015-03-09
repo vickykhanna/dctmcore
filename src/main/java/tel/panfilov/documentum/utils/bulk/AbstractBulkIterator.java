@@ -4,10 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.TreeSet;
 
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
@@ -34,13 +32,13 @@ public abstract class AbstractBulkIterator<T> implements
 
     private final String _objectType;
 
-    private String _projection;
-
     private final ISkipChecker _skipChecker;
 
     private IDfQueriesIterator _iterator;
 
     private IDfTypedObject _next;
+
+    private Set<String> _attributes;
 
     public AbstractBulkIterator(IDfSession session, String objectType, T param,
             ISkipChecker skipChecker) {
@@ -85,9 +83,7 @@ public abstract class AbstractBulkIterator<T> implements
             PersistentObjectManager objectManager = ((ISession) _session)
                     .getObjectManager();
             return objectManager
-                    .getObjectFromQueryRow(
-                            new IDfFakeCollection<IDfTypedObject>(current),
-                            _objectType);
+                    .getObjectFromQueryRow(new IDfFakeCollection<IDfTypedObject>(current), _objectType);
         } catch (DfException ex) {
             throw new RuntimeException(ex);
         }
@@ -126,37 +122,53 @@ public abstract class AbstractBulkIterator<T> implements
         return _objectType;
     }
 
-    protected final String getProjection() {
-        if (StringUtils.isNotBlank(_projection)) {
-            return _projection;
+    protected Set<String> getAttributes() throws DfException {
+        if (_attributes != null) {
+            return _attributes;
         }
-        try {
-            Set<String> attributes;
-            IDfType type = _session.getType(_objectType);
-            if (type == null) {
-                attributes = Collections.emptySet();
-            } else {
-                boolean hasRepeatings = false;
-                attributes = new LinkedHashSet<String>();
-                for (int i = 0, n = type.getTypeAttrCount(); i < n; i++) {
-                    IDfAttr attr = type.getTypeAttr(i);
-                    attributes.add(attr.getName());
-                    if (attr.isRepeating()) {
-                        hasRepeatings = true;
-                    }
-                }
-                attributes.add(DfDocbaseConstants.R_OBJECT_ID);
-                attributes.add(DfDocbaseConstants.I_VSTAMP);
-                if (hasRepeatings) {
-                    attributes.add("i_position");
-                }
-            }
-            _projection = ReservedWords.getProjection(attributes);
-            return _projection;
-        } catch (DfException ex) {
-            throw new RuntimeException(ex);
+        IDfType type = _session.getType(_objectType);
+        if (type == null) {
+            _attributes = Collections.emptySet();
+            return _attributes;
         }
 
+        boolean hasRepeating = false;
+        _attributes = new TreeSet<String>();
+        for (int i = 0, n = type.getTypeAttrCount(); i < n; i++) {
+            IDfAttr attr = type.getTypeAttr(i);
+            _attributes.add(attr.getName());
+            if (attr.isRepeating()) {
+                hasRepeating = true;
+            }
+        }
+
+        _attributes.add(DfDocbaseConstants.R_OBJECT_ID);
+        _attributes.add(DfDocbaseConstants.I_VSTAMP);
+        if (hasRepeating) {
+            _attributes.add("i_position");
+        }
+
+        return _attributes;
+    }
+
+    protected final String getProjection(Set<String> attributes) {
+        return ReservedWords.getProjection(attributes);
+    }
+
+    protected final String getOrderBy(Set<String> attributes) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ORDER BY").append(DfDocbaseConstants.R_OBJECT_ID);
+        if (attributes.contains("i_position")) {
+            builder.append(", i_position DESC");
+        }
+        return builder.toString();
+    }
+
+    protected final String getTypeModifier(Set<String> attributes) {
+        if (attributes.contains(DfDocbaseConstants.I_CHRONICLE_ID)) {
+            return "(ALL)";
+        }
+        return "";
     }
 
 }
